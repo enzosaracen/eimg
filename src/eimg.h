@@ -27,6 +27,13 @@ struct Raw {
 	uint8 (**v)[3];
 };
 
+struct Yuv {
+	int w, h;
+	uint8 **y;
+	int uvw, uvh;
+	uint8 (**uv)[2];
+};
+
 /*
  *	raw.c
  */
@@ -64,6 +71,5 @@ extern	int		c2yuv[3][3], c2rgb[3][3];
 extern	int		q1tab[DCTW][DCTW];
 
 EXTERN	SDL_Window	*win;
-EXTERN	SDL_Renderer	*rnd;
 EXTERN	SDL_Surface	*scr;
 EXTERN	char		*errprefix;

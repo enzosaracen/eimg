@@ -1,7 +1,7 @@
+CC = gcc
+CF = -Werror -ggdb
 PKG = sdl2 SDL2_gfx
 PF = `pkg-config --cflags --libs $(PKG)` -lpng -lm
-CF = -Werror -ggdb
-CC = gcc
 HF = src/eimg.h
 OBJ = src/util.o \
       src/raw.o \
