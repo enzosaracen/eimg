@@ -52,11 +52,11 @@ void subsamp(Raw *r)
 {
 	int i, j, k, width, au, av;
 
-	for(j = 0; j < r->w; j += SUBWIDTH) {
-		if(r->w-j < SUBWIDTH)
+	for(j = 0; j < r->w; j += SUBW) {
+		if(r->w-j < SUBW)
 			width = r->w-j;
 		else
-			width = SUBWIDTH;
+			width = SUBW;
 		for(i = 0; i < r->h; i++) {
 			au = av = 0;
 			for(k = 0; k < width; k++) {

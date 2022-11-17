@@ -11,6 +11,7 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 	r = png2raw(argv[1]);
 	subsamp(r);
+	dctraw(r);
 	craw(r, c2rgb);
 	raw2sdl(r);
 	getchar();

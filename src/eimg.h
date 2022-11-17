@@ -12,7 +12,9 @@
 /*
  *	important parameters
  */
-#define	SUBWIDTH 4	// width for chroma sub with one sample taken
+#define	SUBW	4	// width for chroma sub with one sample taken
+#define DCTW 	8	// dct NxN block width
+#define QMOD	1	// qtab values multiplied by QMOD, higher = lower quality
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -38,6 +40,15 @@ void	craw(Raw *, int (*)[3]);
 void	subsamp(Raw *);
 
 /*
+ *	dct.c
+ */
+void	dctinit(void);
+void	dct2(int (*)[DCTW], int(*)[DCTW]);
+void	quant(int (*)[DCTW], int(*)[DCTW]);
+void	dequant(int (*)[DCTW], int(*)[DCTW]);
+void	dctraw(Raw *);
+
+/*
  *	sdl.c
  */
 void	sdlinit(int, int);
@@ -50,6 +61,7 @@ void	errorf(char *, ...);
 void	*emalloc(size_t);
 
 extern	int		c2yuv[3][3], c2rgb[3][3];
+extern	int		q1tab[DCTW][DCTW];
 
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Renderer	*rnd;
