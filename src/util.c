@@ -1,6 +1,5 @@
 #include "eimg.h"
 
-
 void errorf(char *fmt, ...)
 {
 	va_list ap;
