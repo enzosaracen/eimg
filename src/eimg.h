@@ -14,8 +14,8 @@
  */
 #define	SUBW	4	// width for chroma sub with one sample taken
 #define DCTW 	8	// dct NxN block width
-#define YQMOD	1	// yqtab values multiplied by QMOD, higher = lower quality
-#define UVQMOD	1	// uvqtab ^
+#define YQMOD	5	// yqtab values multiplied by QMOD, higher = lower quality
+#define UVQMOD	5	// uvqtab ^
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -24,6 +24,7 @@ typedef uint32_t uint32;
 typedef struct Raw Raw;
 typedef struct Yuv Yuv;
 typedef struct Wts Wts;
+typedef struct Blist Blist;
 
 struct Raw {
 	int w, h;
@@ -44,6 +45,11 @@ struct Wts {
 	int (**y)[DCTW][DCTW];
 	int uw;
 	int (**uv)[2][DCTW][DCTW];
+};
+
+struct Blist {
+	int n;
+	char *b;
 };
 
 #define UVX(j) ((int)(ceil(((double)(j))/SUBW)))
