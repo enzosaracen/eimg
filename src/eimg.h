@@ -14,13 +14,15 @@
  */
 #define	SUBW	4	// width for chroma sub with one sample taken
 #define DCTW 	8	// dct NxN block width
-#define QMOD	1	// qtab values multiplied by QMOD, higher = lower quality
+#define YQMOD	1	// yqtab values multiplied by QMOD, higher = lower quality
+#define UVQMOD	1	// uvqtab ^
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 
 typedef struct Raw Raw;
+typedef struct Yuv Yuv;
 
 struct Raw {
 	int w, h;
@@ -28,11 +30,13 @@ struct Raw {
 };
 
 struct Yuv {
-	int w, h;
+	int yw, yh;
 	uint8 **y;
-	int uvw, uvh;
+	int uw, uh;
 	uint8 (**uv)[2];
 };
+
+#define UVX(j) ((int)(ceil(((double)(j))/SUBW)))
 
 /*
  *	raw.c
@@ -44,16 +48,17 @@ Raw	*png2raw(char *);
  */
 void	ccol(uint8 *, int (*)[3]);
 void	craw(Raw *, int (*)[3]);
-void	subsamp(Raw *);
+void	yuv2raw(Yuv *, Raw *);
+Yuv	*subsamp(Raw *);
 
 /*
  *	dct.c
  */
 void	dctinit(void);
 void	dct2(int (*)[DCTW], int(*)[DCTW]);
-void	quant(int (*)[DCTW], int(*)[DCTW]);
-void	dequant(int (*)[DCTW], int(*)[DCTW]);
-void	dctraw(Raw *);
+void	quant(int (*)[DCTW], int(*)[DCTW], double);
+void	dequant(int (*)[DCTW], int(*)[DCTW], double);
+void	dctyuv(Yuv *);
 
 /*
  *	sdl.c
@@ -68,7 +73,7 @@ void	errorf(char *, ...);
 void	*emalloc(size_t);
 
 extern	int		c2yuv[3][3], c2rgb[3][3];
-extern	int		q1tab[DCTW][DCTW];
+extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
 
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Surface	*scr;

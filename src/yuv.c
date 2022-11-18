@@ -48,10 +48,42 @@ void craw(Raw *r, int (*tab)[3])
 			ccol(r->v[i][j], tab);
 }
 
-void subsamp(Raw *r)
+void yuv2raw(Yuv *yuv, Raw *r)
+{
+	int i, j, k, width, uvi;
+
+	for(j = 0; j < r->w; j += SUBW) {
+		if(r->w-j < SUBW)
+			width = r->w-j;
+		else
+			width = SUBW;
+		for(i = 0; i < r->h; i++) {
+			uvi = UVX(j);
+			for(k = 0; k < width; k++) {
+				r->v[i][j+k][0] = yuv->y[i][j+k];
+				r->v[i][j+k][1] = yuv->uv[i][uvi][0];
+				r->v[i][j+k][2] = yuv->uv[i][uvi][1];
+			}
+		}
+	}
+}
+
+Yuv *subsamp(Raw *r)
 {
 	int i, j, k, width, au, av;
+	Yuv *yuv;
 
+	yuv = emalloc(sizeof(Yuv));
+	yuv->yw = r->w;
+	yuv->yh = r->h;
+	yuv->y = emalloc(r->h*sizeof(*yuv->y));
+	yuv->uw = UVX(r->w);
+	yuv->uh = r->h;
+	yuv->uv = emalloc(r->h*sizeof(*yuv->y));
+	for(i = 0; i < r->h; i++) {
+		yuv->y[i] = emalloc(yuv->yw*sizeof(**yuv->y));
+		yuv->uv[i] = emalloc(yuv->uw*sizeof(**yuv->uv));
+	}
 	for(j = 0; j < r->w; j += SUBW) {
 		if(r->w-j < SUBW)
 			width = r->w-j;
@@ -61,15 +93,13 @@ void subsamp(Raw *r)
 			au = av = 0;
 			for(k = 0; k < width; k++) {
 				ccol(r->v[i][j+k], c2yuv);
+				yuv->y[i][j+k] = r->v[i][j+k][0];
 				au += r->v[i][j+k][1];
 				av += r->v[i][j+k][2];
 			}
-			au /= width;
-			av /= width;
-			for(k = 0; k < width; k++) {
-				r->v[i][j+k][1] = au;
-				r->v[i][j+k][2] = av;
-			}
+			yuv->uv[i][UVX(j)][0] = au / width;
+			yuv->uv[i][UVX(j)][1] = av / width;
 		}
 	}
+	return yuv;
 }
