@@ -10,11 +10,13 @@ int main(int argc, char **argv)
 	double start, end;
 	Raw *r;
 	Yuv *yuv;
+	Wts *w;
 
 	if(argc != 2)
 		return 1;
 	srand(time(NULL));
 	r = png2raw(argv[1]);
+	dctinit();
 
 	errprefix = "subsampling raw";
 	start = T;
@@ -24,7 +26,13 @@ int main(int argc, char **argv)
 
 	errprefix = "dct'ing yuv";
 	start = T;
-	dctyuv(yuv);
+	w = dctyuv(yuv);
+	end = T;
+	printf("%fs:\t%s\n", end-start, errprefix);
+
+	errprefix = "inverse dct'ing yuv";
+	start = T;
+	idctyuv(yuv, w);
 	end = T;
 	printf("%fs:\t%s\n", end-start, errprefix);
 

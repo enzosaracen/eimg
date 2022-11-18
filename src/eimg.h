@@ -23,6 +23,7 @@ typedef uint32_t uint32;
 
 typedef struct Raw Raw;
 typedef struct Yuv Yuv;
+typedef struct Wts Wts;
 
 struct Raw {
 	int w, h;
@@ -30,10 +31,19 @@ struct Raw {
 };
 
 struct Yuv {
-	int yw, yh;
+	int h;
+	int yw;
 	uint8 **y;
-	int uw, uh;
+	int uw;
 	uint8 (**uv)[2];
+};
+
+struct Wts {
+	int h;
+	int yw;
+	int (**y)[DCTW][DCTW];
+	int uw;
+	int (**uv)[2][DCTW][DCTW];
 };
 
 #define UVX(j) ((int)(ceil(((double)(j))/SUBW)))
@@ -55,10 +65,18 @@ Yuv	*subsamp(Raw *);
  *	dct.c
  */
 void	dctinit(void);
-void	dct2(int (*)[DCTW], int(*)[DCTW]);
+void	dct(int (*)[DCTW], int(*)[DCTW]);
+void	idct(int (*)[DCTW], int(*)[DCTW]);
 void	quant(int (*)[DCTW], int(*)[DCTW], double);
 void	dequant(int (*)[DCTW], int(*)[DCTW], double);
-void	dctyuv(Yuv *);
+void	cpywts(int (*)[DCTW], int (*)[DCTW]);
+Wts	*dctyuv(Yuv *);
+void	idctyuv(Yuv *, Wts *);
+
+/*
+ *	file.c
+ */
+void	fencode(Raw *);
 
 /*
  *	sdl.c

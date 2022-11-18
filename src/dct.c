@@ -86,37 +86,73 @@ void dequant(int (*wts)[DCTW], int (*qtab)[DCTW], double mod)
 			wts[i][j] *= qtab[i][j]*mod;
 }
 
-void dctyuv(Yuv *yuv)
+void cpywts(int (*dest)[DCTW], int (*src)[DCTW])
+{
+	int i, j;
+	
+	for(i = 0; i < DCTW; i++)
+		for(j = 0; j < DCTW; j++)
+			dest[i][j] = src[i][j];
+}
+
+Wts *dctyuv(Yuv *yuv)
 {
 	int i, j, k, x, y, wts[DCTW][DCTW], img[DCTW][DCTW];
+	Wts *w;
 
-	dctinit();
-	for(i = 0; i < yuv->yh-DCTW; i += DCTW) {
-		for(j = 0; j < yuv->uw-DCTW; j += DCTW) {
+	w = emalloc(sizeof(Wts));
+	w->h = yuv->h / DCTW;
+	w->yw = yuv->yw / DCTW;
+	w->y = emalloc(w->h*sizeof(*w->y));
+	w->uw = yuv->uw / DCTW;
+	w->uv = emalloc(w->h*sizeof(*w->uv));
+	for(i = 0; i < w->h; i++) {
+		w->y[i] = emalloc(w->yw*sizeof(**w->y));
+		w->uv[i] = emalloc(w->uw*sizeof(**w->uv));
+	}
+	for(i = 0; i < yuv->h; i += DCTW) {
+		for(j = 0; j < yuv->uw; j += DCTW) {
 			for(k = 0; k < 2; k++) {
 				for(y = 0; y < DCTW; y++)
-					for(x = 0; x < DCTW; x++)	
+					for(x = 0; x < DCTW; x++)
 						img[y][x] = yuv->uv[i+y][j+x][k];
 				dct(img, wts);
-				quant(wts, yq1tab, UVQMOD);
-				dequant(wts, yq1tab, UVQMOD);
-				idct(img, wts);
-				for(y = 0; y < DCTW; y++)
-					for(x = 0; x < DCTW; x++)
-						yuv->uv[i+y][j+x][k] = img[y][x];
+				quant(wts, uvq1tab, UVQMOD);
+				cpywts(w->uv[i/DCTW][j/DCTW][k], wts);
+			
 			}
 		}
-		for(j = 0; j < yuv->yw-DCTW; j += DCTW) {
+		for(j = 0; j < yuv->yw; j += DCTW) {
 			for(y = 0; y < DCTW; y++)
 				for(x = 0; x < DCTW; x++)	
 					img[y][x] = yuv->y[i+y][j+x];
 			dct(img, wts);
 			quant(wts, yq1tab, YQMOD);
-			dequant(wts, yq1tab, YQMOD);
-			idct(img, wts);
+			cpywts(w->y[i/DCTW][j/DCTW], wts);
+		}
+	}
+	return w;
+}
+
+void idctyuv(Yuv *yuv, Wts *w)
+{
+	int i, j, k, x, y, img[DCTW][DCTW]; 
+
+	for(i = 0; i < w->h; i++) {
+		for(k = 0; k < 2; k++)
+			for(j = 0; j < w->uw; j++) {
+				dequant(w->uv[i][j][k], uvq1tab, UVQMOD);
+				idct(img, w->uv[i][j][k]);
+				for(y = 0; y < DCTW; y++)
+					for(x = 0; x < DCTW; x++)
+						yuv->uv[i*DCTW+y][j*DCTW+x][k] = img[y][x];
+			}
+		for(j = 0; j < w->yw; j++) {
+			dequant(w->y[i][j], yq1tab, YQMOD);
+			idct(img, w->y[i][j]);
 			for(y = 0; y < DCTW; y++)
 				for(x = 0; x < DCTW; x++)
-					yuv->y[i+y][j+x] = img[y][x];
+					yuv->y[i*DCTW+y][j*DCTW+x] = img[y][x];
 		}
 	}
 }

@@ -57,8 +57,8 @@ void yuv2raw(Yuv *yuv, Raw *r)
 			width = r->w-j;
 		else
 			width = SUBW;
+		uvi = UVX(j);
 		for(i = 0; i < r->h; i++) {
-			uvi = UVX(j);
 			for(k = 0; k < width; k++) {
 				r->v[i][j+k][0] = yuv->y[i][j+k];
 				r->v[i][j+k][1] = yuv->uv[i][uvi][0];
@@ -74,13 +74,12 @@ Yuv *subsamp(Raw *r)
 	Yuv *yuv;
 
 	yuv = emalloc(sizeof(Yuv));
-	yuv->yw = r->w;
-	yuv->yh = r->h;
-	yuv->y = emalloc(r->h*sizeof(*yuv->y));
-	yuv->uw = UVX(r->w);
-	yuv->uh = r->h;
-	yuv->uv = emalloc(r->h*sizeof(*yuv->y));
-	for(i = 0; i < r->h; i++) {
+	yuv->h = r->h + (DCTW - (r->h % DCTW));
+	yuv->yw = r->w + (DCTW - (r->w % DCTW));
+	yuv->y = emalloc(yuv->h*sizeof(*yuv->y));
+	yuv->uw = UVX(r->w) + (DCTW - (UVX(r->w) % DCTW));
+	yuv->uv = emalloc(yuv->h*sizeof(*yuv->y));
+	for(i = 0; i < yuv->h; i++) {
 		yuv->y[i] = emalloc(yuv->yw*sizeof(**yuv->y));
 		yuv->uv[i] = emalloc(yuv->uw*sizeof(**yuv->uv));
 	}
@@ -99,6 +98,31 @@ Yuv *subsamp(Raw *r)
 			}
 			yuv->uv[i][UVX(j)][0] = au / width;
 			yuv->uv[i][UVX(j)][1] = av / width;
+		}
+	}
+
+	for(i = 0; i < r->h; i++) {
+		for(j = r->w; j < yuv->yw; j++)
+			yuv->y[i][j] = yuv->y[i][r->w-1];
+		for(j = UVX(r->w); j < yuv->uw; j++) {
+			yuv->uv[i][j][0] = yuv->uv[i][UVX(r->w-SUBW)][0];
+			yuv->uv[i][j][1] = yuv->uv[i][UVX(r->w-SUBW)][1];
+		}
+	}
+	for(i = r->h; i < yuv->h; i++) {
+		for(j = 0; j < r->w; j++)
+			yuv->y[i][j] = yuv->y[r->h-1][j];
+		for(j = 0; j < UVX(r->w); j++) {
+			yuv->uv[i][j][0] = yuv->uv[r->h-1][j][0];
+			yuv->uv[i][j][1] = yuv->uv[r->h-1][j][1];
+		}
+	}
+	for(i = r->h; i < yuv->h; i++) {
+		for(j = r->w; j < yuv->yw; j++)
+			yuv->y[i][j] = yuv->y[r->h-1][r->w-1];
+		for(j = UVX(r->w); j < yuv->uw; j++) {
+			yuv->uv[i][j][0] = yuv->uv[r->h-1][UVX(r->w-SUBW)][0];
+			yuv->uv[i][j][1] = yuv->uv[r->h-1][UVX(r->w-SUBW)][1];
 		}
 	}
 	return yuv;
