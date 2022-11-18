@@ -3,7 +3,7 @@
 char codechar(int v)
 {
 	if(v >= 128 || v < -128)
-		errorf("codechar: weight value too large, check QMOD");
+		errorf("codechar: weight value too large, check qmod");
 	return (char)v;
 }
 
@@ -80,6 +80,8 @@ Wts *encode(Raw *r, char *out)
 		errorf("encode: cannot open %s", out);
 
 	printf("--------- encoding ---------\n");
+	printf("luma qmod:\t%f\n", yqmod);
+	printf("chroma qmod:\t%f\n", uvqmod);
 	BENCH(yuv = subsamp(r), "subsampling raw into yuv");
 	BENCH(w = dctyuv(yuv), "dct'ing yuv into weights");
 	BENCH(c = wts2code(w), "encoding weights");

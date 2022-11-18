@@ -14,8 +14,8 @@
  */
 #define	SUBW	4	// width for chroma sub with one sample taken
 #define DCTW 	8	// dct NxN block width
-#define YQMOD	2	// yqtab values multiplied by QMOD, higher = lower quality
-#define UVQMOD	2	// uvqtab ^
+EXTERN	double yqmod;	// yqtab values multiplied by QMOD, higher = lower quality
+EXTERN	double uvqmod;	// uvqtab ^
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -120,4 +120,3 @@ extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Surface	*scr;
 EXTERN	char		*errprefix;
-EXTERN	Yuv		*globalyuv;

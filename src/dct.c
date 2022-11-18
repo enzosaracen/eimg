@@ -117,7 +117,7 @@ Wts *dctyuv(Yuv *yuv)
 					for(x = 0; x < DCTW; x++)
 						img[y][x] = yuv->uv[i+y][j+x][k];
 				dct(img, wts);
-				quant(wts, uvq1tab, UVQMOD);
+				quant(wts, uvq1tab, uvqmod);
 				cpywts(w->uv[i/DCTW][j/DCTW][k], wts);
 			
 			}
@@ -127,7 +127,7 @@ Wts *dctyuv(Yuv *yuv)
 				for(x = 0; x < DCTW; x++)	
 					img[y][x] = yuv->y[i+y][j+x];
 			dct(img, wts);
-			quant(wts, yq1tab, YQMOD);
+			quant(wts, yq1tab, yqmod);
 			cpywts(w->y[i/DCTW][j/DCTW], wts);
 		}
 	}
@@ -141,14 +141,14 @@ void idctyuv(Yuv *yuv, Wts *w)
 	for(i = 0; i < w->h; i++) {
 		for(k = 0; k < 2; k++)
 			for(j = 0; j < w->uw; j++) {
-				dequant(w->uv[i][j][k], uvq1tab, UVQMOD);
+				dequant(w->uv[i][j][k], uvq1tab, uvqmod);
 				idct(img, w->uv[i][j][k]);
 				for(y = 0; y < DCTW; y++)
 					for(x = 0; x < DCTW; x++)
 						yuv->uv[i*DCTW+y][j*DCTW+x][k] = img[y][x];
 			}
 		for(j = 0; j < w->yw; j++) {
-			dequant(w->y[i][j], yq1tab, YQMOD);
+			dequant(w->y[i][j], yq1tab, yqmod);
 			idct(img, w->y[i][j]);
 			for(y = 0; y < DCTW; y++)
 				for(x = 0; x < DCTW; x++)
