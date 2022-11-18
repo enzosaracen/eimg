@@ -31,9 +31,9 @@ Raw *png2raw(char *fname)
 
 	w = png_get_image_width(pngp, infp);
 	h = png_get_image_height(pngp, infp);
-	rowp = malloc(sizeof(png_bytep)*h);
+	rowp = emalloc(sizeof(png_bytep)*h);
 	for(i = 0; i < h; i++)
-		rowp[i] = malloc(png_get_rowbytes(pngp, infp));
+		rowp[i] = emalloc(png_get_rowbytes(pngp, infp));
 	png_read_image(pngp, rowp);
 
 	switch(png_get_color_type(pngp, infp)) {
@@ -61,6 +61,11 @@ Raw *png2raw(char *fname)
 			raw->v[i][j][2] = bp[2];
 		}
 	}
+	free(pngp);
+	free(infp);
+	for(i = 0; i < h; i++)
+		free(rowp[i]);
+	free(rowp);
 	fclose(fp);
 	errprefix = NULL;
 	return raw;

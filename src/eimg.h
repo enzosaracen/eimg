@@ -14,8 +14,8 @@
  */
 #define	SUBW	4	// width for chroma sub with one sample taken
 #define DCTW 	8	// dct NxN block width
-#define YQMOD	5	// yqtab values multiplied by QMOD, higher = lower quality
-#define UVQMOD	5	// uvqtab ^
+#define YQMOD	2	// yqtab values multiplied by QMOD, higher = lower quality
+#define UVQMOD	2	// uvqtab ^
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -24,7 +24,7 @@ typedef uint32_t uint32;
 typedef struct Raw Raw;
 typedef struct Yuv Yuv;
 typedef struct Wts Wts;
-typedef struct Blist Blist;
+typedef struct Code Code;
 
 struct Raw {
 	int w, h;
@@ -47,12 +47,25 @@ struct Wts {
 	int (**uv)[2][DCTW][DCTW];
 };
 
-struct Blist {
+struct Code {
 	int n;
-	char *b;
+	int i;
+	char *val;
+	int *nval;
 };
 
 #define UVX(j) ((int)(ceil(((double)(j))/SUBW)))
+
+#define TDIF ((double)clock()/CLOCKS_PER_SEC)
+
+#define BENCH(fn, str) \
+	errprefix = str; \
+	tstart = TDIF; \
+	fn; \
+	tend = TDIF; \
+	printf("%fs:\t%s\n", tend-tstart, errprefix); \
+	errprefix = NULL;
+
 
 /*
  *	raw.c
@@ -80,9 +93,14 @@ Wts	*dctyuv(Yuv *);
 void	idctyuv(Yuv *, Wts *);
 
 /*
- *	file.c
+ *	code.c
  */
-void	fencode(Raw *);
+char	codechar(int);
+void	codeput(Code *, int);
+int	diagbound(int);
+void	diagwt(Code *, int (*)[DCTW]);
+Code	*wts2code(Wts *);
+Wts	*encode(Raw *, char *);
 
 /*
  *	sdl.c
@@ -102,3 +120,4 @@ extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Surface	*scr;
 EXTERN	char		*errprefix;
+EXTERN	Yuv		*globalyuv;
