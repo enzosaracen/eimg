@@ -8,7 +8,7 @@ OBJ = src/util.o \
       src/sdl.o \
       src/yuv.o \
       src/dct.o \
-      src/code.o \
+      src/file.o \
       src/cmd.o
 
 %.o:	%.c $(HF)

@@ -16,6 +16,5 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 	r = png2raw(argv[1]);
 	dctinit();
-	encode(r, "out.eimg");
-	return 0;
+	test(r, "out.eimg");
 }

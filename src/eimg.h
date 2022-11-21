@@ -14,7 +14,7 @@
  */
 #define	SUBW	4	// width for chroma sub with one sample taken
 #define DCTW 	8	// dct NxN block width
-EXTERN	double yqmod;	// yqtab values multiplied by QMOD, higher = lower quality
+EXTERN	double yqmod;	// yqtab values multiplied by qmod, higher = lower quality
 EXTERN	double uvqmod;	// uvqtab ^
 
 typedef uint8_t uint8;
@@ -24,7 +24,6 @@ typedef uint32_t uint32;
 typedef struct Raw Raw;
 typedef struct Yuv Yuv;
 typedef struct Wts Wts;
-typedef struct Code Code;
 
 struct Raw {
 	int w, h;
@@ -45,13 +44,6 @@ struct Wts {
 	int (**y)[DCTW][DCTW];
 	int uw;
 	int (**uv)[2][DCTW][DCTW];
-};
-
-struct Code {
-	int n;
-	int i;
-	char *val;
-	int *nval;
 };
 
 #define UVX(j) ((int)(ceil(((double)(j))/SUBW)))
@@ -93,14 +85,17 @@ Wts	*dctyuv(Yuv *);
 void	idctyuv(Yuv *, Wts *);
 
 /*
- *	code.c
+ *	file.c
  */
-char	codechar(int);
-void	codeput(Code *, int);
-int	diagbound(int);
-void	diagwt(Code *, int (*)[DCTW]);
-Code	*wts2code(Wts *);
-Wts	*encode(Raw *, char *);
+void	vlqw(int32_t, FILE *);
+int32_t	vlqr(FILE *);
+void	wrw(int);
+int	rdw(void);
+void	wrwts(int (*)[DCTW]);
+void	rdwts(int (*)[DCTW]);
+void	wts2file(Wts *);
+void	file2wts(Wts *);
+void	test(Raw *, char *);
 
 /*
  *	sdl.c
@@ -113,6 +108,8 @@ void	raw2sdl(Raw *);
  */
 void	errorf(char *, ...);
 void	*emalloc(size_t);
+int	ebound(int, int);
+char	efgetc(FILE *);
 
 extern	int		c2yuv[3][3], c2rgb[3][3];
 extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
