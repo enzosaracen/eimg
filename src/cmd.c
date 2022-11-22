@@ -16,5 +16,11 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 	r = png2raw(argv[1]);
 	dctinit();
+
+/*	FILE *fp = fopen("testfile", "w");
+	vlqw(-2147483647, fp);
+	fclose(fp);
+	fp = fopen("testfile", "r");
+	printf("%d\n", vlqr(fp));*/
 	test(r, "out.eimg");
 }

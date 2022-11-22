@@ -1,5 +1,5 @@
 CC = gcc
-CF = -Werror -ggdb
+CF = -Wall -ggdb
 PKG = sdl2 SDL2_gfx
 PF = `pkg-config --cflags --libs $(PKG)` -lpng -lm
 HF = src/eimg.h

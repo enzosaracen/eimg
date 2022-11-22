@@ -8,12 +8,15 @@ void vlqw(int32_t v, FILE *fp)
 	unsigned char b;
 
 	sign = (v & 0x80000000) != 0;
-	if(sign)
+	if(sign) {
 		v = -v;
+		if(v < 0)
+			errorf("integer too small for vlqw");
+	}
 	b = v & 0x3f;
 	cont = v > b;
 	fputc(b | (sign << 6) | (cont << 7), fp);
-	for(i = 6; cont; i += 7) {
+	for(i = 6; cont; i = 7) {
 		v >>= i;
 		b = v & 0x7f;
 		cont = v > b;
@@ -41,7 +44,6 @@ int32_t vlqr(FILE *fp)
 
 void wrw(int v)
 {
-	static int total;
 	static int n0;
 
 	if(v == 0) {
@@ -57,15 +59,16 @@ void wrw(int v)
 
 int rdw(void)
 {
-	static int total;
 	static int n0;
 	int32_t v;
 
-	if(n0 > 0 && --n0 > 0)
+	if(n0 > 0) {
+		n0--;	
 		return 0;
+	}
 	v = vlqr(fin);
 	if(v == 0)
-		n0 = vlqr(fin);
+		n0 = vlqr(fin)-1;
 	return v;
 }
 
@@ -144,9 +147,9 @@ void wts2file(Wts *w)
 	for(i = 0; i < w->h; i++)
 		for(j = 0; j < w->yw; j++)
 			wrwts(w->y[i][j]);
-	for(i = 0; i < w->h; i++)
-		for(j = 0; j < w->uw; j++)
-			for(k = 0; k < 2; k++)
+	for(k = 0; k < 2; k++)
+		for(i = 0; i < w->h; i++)
+			for(j = 0; j < w->uw; j++)
 				wrwts(w->uv[i][j][k]);
 }
 
@@ -157,15 +160,15 @@ void file2wts(Wts *w)
 	for(i = 0; i < w->h; i++)
 		for(j = 0; j < w->yw; j++)
 			rdwts(w->y[i][j]);
-	for(i = 0; i < w->h; i++)
-		for(j = 0; j < w->uw; j++)
-			for(k = 0; k < 1; k++)
+	for(k = 0; k < 1; k++)
+		for(i = 0; i < w->h; i++)
+			for(j = 0; j < w->uw; j++)
 				rdwts(w->uv[i][j][k]);
 }
 
 void test(Raw *r, char *fname)
 {
-	int i, j;
+	int x, i, j;
 	double tend, tstart;
 	Yuv *yuv;
 	Wts *w;
@@ -181,24 +184,11 @@ void test(Raw *r, char *fname)
 	BENCH(wts2file(w), "encoding weights");
 	fclose(fout);
 
-	for(i = 0; i < DCTW; i++) {
-		for(j = 0; j < DCTW; j++)
-			printf("%d\t", w->uv[0][0][0][i][j]);
-		printf("\n");
-	}
-
 	fin = fopen(fname, "r");
 	if(fin == NULL)
 		errorf("decode: cannot open %s", fname);
 	printf("\n\n--------- decoding ---------\n");
 	BENCH(file2wts(w), "decoding weights");
-
-	for(i = 0; i < DCTW; i++) {
-		for(j = 0; j < DCTW; j++)
-			printf("%d\t", w->uv[0][0][0][i][j]);
-		printf("\n");
-	}
-
 	BENCH(idctyuv(yuv, w), "inverse dct'ing weights into yuv");
 	BENCH(yuv2raw(yuv, r), "yuv back to raw");
 	BENCH(craw(r, c2rgb), "raw back to rgb");
