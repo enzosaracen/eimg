@@ -117,3 +117,4 @@ extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Surface	*scr;
 EXTERN	char		*errprefix;
+EXTERN	char		*srcfile;

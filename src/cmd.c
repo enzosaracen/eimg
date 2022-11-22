@@ -14,13 +14,8 @@ int main(int argc, char **argv)
 	} else
 		yqmod = uvqmod = 1;
 	srand(time(NULL));
-	r = png2raw(argv[1]);
+	srcfile = argv[1];
+	r = png2raw(srcfile);
 	dctinit();
-
-/*	FILE *fp = fopen("testfile", "w");
-	vlqw(-2147483647, fp);
-	fclose(fp);
-	fp = fopen("testfile", "r");
-	printf("%d\n", vlqr(fp));*/
 	test(r, "out.eimg");
 }

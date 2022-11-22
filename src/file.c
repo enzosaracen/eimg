@@ -11,7 +11,7 @@ void vlqw(int32_t v, FILE *fp)
 	if(sign) {
 		v = -v;
 		if(v < 0)
-			errorf("integer too small for vlqw");
+			errorf("negative integer limit for vlqw, qmod likely zero");
 	}
 	b = v & 0x3f;
 	cont = v > b;
@@ -168,8 +168,7 @@ void file2wts(Wts *w)
 
 void test(Raw *r, char *fname)
 {
-	int x, i, j;
-	double tend, tstart;
+	double tend, tstart, comprate;
 	Yuv *yuv;
 	Wts *w;
 
@@ -193,6 +192,15 @@ void test(Raw *r, char *fname)
 	BENCH(yuv2raw(yuv, r), "yuv back to raw");
 	BENCH(craw(r, c2rgb), "raw back to rgb");
 	BENCH(raw2sdl(r), "raw into SDL");
+
+	fseek(fin, 0, SEEK_END);
+	comprate = 1.0 / ftell(fin);
 	fclose(fin);
+	fin = fopen(srcfile, "r");
+	fseek(fin, 0, SEEK_END);
+	comprate *= ftell(fin);
+	fclose(fin);
+	printf("\ncompression:\tx%.3f\n", comprate);
+
 	getchar();
 }
