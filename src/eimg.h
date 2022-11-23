@@ -58,7 +58,6 @@ struct Wts {
 	printf("%fs:\t%s\n", tend-tstart, errprefix); \
 	errprefix = NULL;
 
-
 /*
  *	raw.c
  */
@@ -87,15 +86,22 @@ void	idctyuv(Yuv *, Wts *);
 /*
  *	file.c
  */
-void	vlqw(int32_t, FILE *);
-int32_t	vlqr(FILE *);
+void	vlqw(int32_t);
+int32_t	vlqr(void);
+void	test(Raw *, char *);
+
+/*
+ *	code.c
+ */
+void	wrdcoef(Wts *);
+void	rddcoef(Wts *);
 void	wrw(int);
 int	rdw(void);
 void	wrwts(int (*)[DCTW]);
 void	rdwts(int (*)[DCTW]);
 void	wts2file(Wts *);
 void	file2wts(Wts *);
-void	test(Raw *, char *);
+
 
 /*
  *	sdl.c
