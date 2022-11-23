@@ -12,10 +12,11 @@ void wrdcoef(Wts *w)
 		}
 	for(k = 0; k < 2; k++) {
 		prev = 0;
-		for(i = 0; i < w->uw; i++) {
-			vlqw(w->uv[i][j][k][0][0] - prev);
-			prev = w->uv[i][j][k][0][0];
-		}
+		for(i = 0; i < w->h; i++)
+			for(j = 0; j < w->uw; j++) {
+				vlqw(w->uv[i][j][k][0][0] - prev);
+				prev = w->uv[i][j][k][0][0];
+			}
 	}
 }
 
@@ -31,10 +32,11 @@ void rddcoef(Wts *w)
 		}
 	for(k = 0; k < 2; k++) {
 		prev = 0;
-		for(i = 0; i < w->uw; i++) {
-			w->uv[i][j][k][0][0] = vlqr() + prev;
-			prev = w->uv[i][j][k][0][0];
-		}
+		for(i = 0; i < w->h; i++)
+			for(j = 0; j < w->uw; j++) {
+				w->uv[i][j][k][0][0] = vlqr() + prev;
+				prev = w->uv[i][j][k][0][0];
+			}
 	}
 }
 
