@@ -41,3 +41,13 @@ char efgetc(FILE *fp)
 		errorf("fgetc eof");
 	return c;
 }
+
+int ipow(int b, int e)
+{
+	int r;
+	
+	r = 1;
+	while(e--)
+		r *= b;
+	return r;
+}

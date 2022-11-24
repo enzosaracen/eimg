@@ -1,47 +1,5 @@
 #include "eimg.h"
 
-FILE *fout, *fin;
-
-void vlqw(int32_t v)
-{
-	int i, sign, cont;
-	unsigned char b;
-
-	sign = (v & 0x80000000) != 0;
-	if(sign) {
-		v = -v;
-		if(v < 0)
-			errorf("negative limit for vlqw, qmod likely zero");
-	}
-	b = v & 0x3f;
-	cont = v > b;
-	fputc(b | (sign << 6) | (cont << 7), fout);
-	for(i = 6; cont; i = 7) {
-		v >>= i;
-		b = v & 0x7f;
-		cont = v > b;
-		fputc(b | (cont << 7), fout);
-	}
-}
-
-int32_t vlqr(void)
-{
-	int i, cont, sign;
-	int32_t v, b;
-
-	v = 0;
-	b = efgetc(fin);
-	sign = (b & 0x40) ? -1 : 1;
-	cont = b & 0x80;
-	v |= b & 0x3f;
-	for(i = 6; cont; i += 7) {
-		b = efgetc(fin);
-		v |= (b & 0x7f) << i;
-		cont = b & 0x80;
-	}
-	return v*sign;
-}
-
 void test(Raw *r, char *fname)
 {
 	double tend, tstart, comprate;

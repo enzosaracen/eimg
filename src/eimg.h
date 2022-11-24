@@ -17,6 +17,8 @@
 EXTERN	double yqmod;	// yqtab values multiplied by qmod, higher = lower quality
 EXTERN	double uvqmod;	// uvqtab ^
 
+#define VLIMAX	16
+
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
@@ -86,22 +88,33 @@ void	idctyuv(Yuv *, Wts *);
 /*
  *	file.c
  */
-void	vlqw(int32_t);
-int32_t	vlqr(void);
 void	test(Raw *, char *);
 
 /*
- *	code.c
+ *	huff.c
  */
+void	initvli(void);
+int	vlisiz(int);
+uint16	vlibits(int);
+void	mkdcpair(int);
+void	mkacpair(int, int);
+int	rddcpair(void);
+int	rdacpair(int);
 void	wrdcoef(Wts *);
+void	wracoef(int (*)[DCTW]);
 void	rddcoef(Wts *);
-void	wrw(int);
-int	rdw(void);
-void	wrwts(int (*)[DCTW]);
-void	rdwts(int (*)[DCTW]);
+void	rdacoef(int (*)[DCTW]);
 void	wts2file(Wts *);
 void	file2wts(Wts *);
 
+/*
+ *	bit.c
+ */
+void	wrb(int);
+int	rdb(void);
+void	wrbits(uint16, int);
+void	wrbflush(void);
+uint16	rdbits(int);
 
 /*
  *	sdl.c
@@ -116,11 +129,18 @@ void	errorf(char *, ...);
 void	*emalloc(size_t);
 int	ebound(int, int);
 char	efgetc(FILE *);
+int	ipow(int, int);
 
 extern	int		c2yuv[3][3], c2rgb[3][3];
 extern	int		yq1tab[DCTW][DCTW], uvq1tab[DCTW][DCTW];
+
+EXTERN struct {
+	int *v;
+	int n;
+} vlitab[VLIMAX];
 
 EXTERN	SDL_Window	*win;
 EXTERN	SDL_Surface	*scr;
 EXTERN	char		*errprefix;
 EXTERN	char		*srcfile;
+EXTERN	FILE		*fout, *fin;

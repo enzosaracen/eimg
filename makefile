@@ -9,7 +9,8 @@ OBJ = src/util.o \
       src/yuv.o \
       src/dct.o \
       src/file.o \
-      src/code.o \
+      src/huff.o \
+      src/bit.o \
       src/cmd.o
 
 %.o:	%.c $(HF)
